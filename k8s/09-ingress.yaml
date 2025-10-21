@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fluxo-caixa-ingress
+  namespace: fluxo-caixa
+  annotations:
+    # Ajustar conforme seu Ingress Controller
+    # Para NGINX Ingress Controller:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  ingressClassName: nginx  # Ajustar conforme seu cluster
+  rules:
+  # IMPORTANTE: Substituir pelo seu domínio ou IP
+  - host: fluxo-caixa.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: fluxo-caixa-service
+            port:
+              number: 80
+  # Opcional: Configurar TLS
+  # tls:
+  # - hosts:
+  #   - fluxo-caixa.local
+  #   secretName: fluxo-caixa-tls
+

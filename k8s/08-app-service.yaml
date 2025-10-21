@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fluxo-caixa-service
+  namespace: fluxo-caixa
+  labels:
+    app: fluxo-caixa-app
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+    name: http
+  selector:
+    app: fluxo-caixa-app
+

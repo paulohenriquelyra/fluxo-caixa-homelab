@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: fluxo-caixa
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  DB_HOST: "postgres-service.fluxo-caixa.svc.cluster.local"
+  DB_PORT: "5432"
+  DB_NAME: "fluxocaixa"
+  DB_USER: "postgres"
+  DB_POOL_MAX: "20"
+  DB_IDLE_TIMEOUT: "30000"
+  DB_CONNECTION_TIMEOUT: "2000"
+
