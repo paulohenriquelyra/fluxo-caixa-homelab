@@ -6,6 +6,7 @@ const morgan = require('morgan');
 const compression = require('compression');
 const db = require('./models/db');
 const transacoesRoutes = require('./routes/transacoes');
+const { metricsMiddleware, metricsHandler } = require('./metrics');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,11 +19,17 @@ app.use(morgan('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Middleware de métricas Prometheus
+app.use(metricsMiddleware);
+
 // Middleware de log de requisições
 app.use((req, res, next) => {
     console.log(`📨 ${req.method} ${req.path}`);
     next();
 });
+
+// Endpoint de métricas Prometheus
+app.get('/metrics', metricsHandler);
 
 // Health check
 app.get('/health', (req, res) => {
