@@ -1,0 +1,39 @@
+# ServiceMonitor para Prometheus Operator
+# Requer Prometheus Operator instalado no cluster
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: fluxo-caixa-app-monitor
+  namespace: fluxo-caixa
+  labels:
+    app: fluxo-caixa-app
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: fluxo-caixa-app
+  endpoints:
+  - port: http
+    interval: 30s
+    path: /metrics
+    scheme: http
+---
+# ServiceMonitor para PostgreSQL Exporter (se instalado)
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: postgres-monitor
+  namespace: fluxo-caixa
+  labels:
+    app: postgres
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+    scheme: http
+

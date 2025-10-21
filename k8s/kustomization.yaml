@@ -1,0 +1,69 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: fluxo-caixa-homelab
+  namespace: fluxo-caixa
+
+# Namespace comum
+namespace: fluxo-caixa
+
+# Labels comuns aplicados a todos os recursos
+commonLabels:
+  project: fluxo-caixa
+  environment: homelab
+  managed-by: kustomize
+
+# Annotations comuns
+commonAnnotations:
+  description: "Sistema de Fluxo de Caixa - Homelab"
+  maintainer: "Paulo Lyra"
+
+# Recursos base (ordem de aplicação)
+resources:
+  - 00-namespace.yaml
+  - 01-postgres-configmap.yaml
+  - 02-postgres-secret.yaml
+  - 03-postgres-pvc.yaml
+  - 04-postgres-statefulset.yaml
+  - 05-postgres-service.yaml
+  - 06-app-configmap.yaml
+  - 07-app-deployment.yaml
+  - 08-app-service.yaml
+  - 09-ingress.yaml
+
+# Recursos opcionais (descomente conforme necessário)
+# - 10-app-hpa.yaml              # Auto-scaling
+# - 11-network-policy.yaml       # Segurança de rede
+# - 12-pod-disruption-budget.yaml # Alta disponibilidade
+# - 13-servicemonitor.yaml       # Prometheus
+# - 14-resource-quota.yaml       # Quotas de recursos
+# - 15-backup-job.yaml           # Backup automático
+
+# Imagens (substituir tags)
+images:
+  - name: seu-registry/fluxo-caixa-app
+    newName: seu-registry/fluxo-caixa-app
+    newTag: v1.0
+
+# ConfigMap Generator (gerar ConfigMaps a partir de arquivos)
+# configMapGenerator:
+#   - name: app-config-files
+#     files:
+#       - config.json
+
+# Secret Generator (gerar Secrets a partir de arquivos)
+# secretGenerator:
+#   - name: app-secrets
+#     files:
+#       - .env
+
+# Patches (modificações específicas)
+# patchesStrategicMerge:
+#   - patches/deployment-patch.yaml
+
+# Replicas (sobrescrever número de replicas)
+# replicas:
+#   - name: fluxo-caixa-app
+#     count: 3
+

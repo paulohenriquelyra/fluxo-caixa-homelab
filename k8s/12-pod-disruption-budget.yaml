@@ -1,0 +1,26 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: fluxo-caixa-app-pdb
+  namespace: fluxo-caixa
+  labels:
+    app: fluxo-caixa-app
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: fluxo-caixa-app
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: postgres-pdb
+  namespace: fluxo-caixa
+  labels:
+    app: postgres
+spec:
+  maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: postgres
+

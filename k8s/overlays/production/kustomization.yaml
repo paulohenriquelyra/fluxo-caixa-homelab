@@ -1,0 +1,39 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Base
+bases:
+  - ../../
+
+# Namespace específico
+namespace: fluxo-caixa-prod
+
+# Sufixo para recursos
+nameSuffix: -prod
+
+# Labels específicos do ambiente
+commonLabels:
+  environment: production
+
+# Patches específicos para produção
+patchesStrategicMerge:
+  - deployment-patch.yaml
+
+# Replicas aumentadas para produção
+replicas:
+  - name: fluxo-caixa-app
+    count: 3
+
+# Imagem com tag de produção
+images:
+  - name: seu-registry/fluxo-caixa-app
+    newTag: v1.0
+
+# Recursos adicionais para produção
+resources:
+  - ../../10-app-hpa.yaml
+  - ../../11-network-policy.yaml
+  - ../../12-pod-disruption-budget.yaml
+  - ../../14-resource-quota.yaml
+  - ../../15-backup-job.yaml
+

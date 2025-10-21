@@ -1,0 +1,77 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+  namespace: fluxo-caixa
+  labels:
+    app: postgres-backup
+spec:
+  # Executar backup diariamente às 2h da manhã
+  schedule: "0 2 * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: postgres-backup
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: backup
+            image: postgres:15-alpine
+            command:
+            - /bin/sh
+            - -c
+            - |
+              BACKUP_FILE="/backups/backup-$(date +%Y%m%d-%H%M%S).sql.gz"
+              echo "Iniciando backup: $BACKUP_FILE"
+              
+              pg_dump -h postgres-service \
+                      -U postgres \
+                      -d fluxocaixa \
+                      --no-owner \
+                      --no-privileges \
+                      | gzip > $BACKUP_FILE
+              
+              if [ $? -eq 0 ]; then
+                echo "Backup concluído com sucesso: $BACKUP_FILE"
+                ls -lh $BACKUP_FILE
+                
+                # Limpar backups antigos (manter últimos 7 dias)
+                find /backups -name "backup-*.sql.gz" -mtime +7 -delete
+                echo "Backups antigos removidos"
+              else
+                echo "Erro ao fazer backup"
+                exit 1
+              fi
+            env:
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            volumeMounts:
+            - name: backup-storage
+              mountPath: /backups
+          volumes:
+          - name: backup-storage
+            persistentVolumeClaim:
+              claimName: postgres-backup-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-backup-pvc
+  namespace: fluxo-caixa
+  labels:
+    app: postgres-backup
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+
