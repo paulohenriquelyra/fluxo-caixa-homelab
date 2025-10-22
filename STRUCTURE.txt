@@ -1,0 +1,91 @@
+.
+├── QUICKSTART.md
+├── README.md
+├── STRUCTURE.txt
+├── app
+│   ├── Dockerfile
+│   ├── package.json
+│   └── src
+│       ├── config
+│       ├── controllers
+│       ├── metrics.js
+│       ├── models
+│       ├── routes
+│       └── server.js
+├── database
+│   ├── 01-schema.sql
+│   ├── 02-views.sql
+│   ├── 03-procedures.sql
+│   ├── 04-functions.sql
+│   └── 05-seed.sql
+├── docs
+│   ├── api.md
+│   ├── docker-build.md
+│   ├── metallb-proxmox.md
+│   ├── migracao-aws.md
+│   ├── monitoring.md
+│   ├── setup-portas-padrao.md
+│   ├── troubleshooting-ingress.md
+│   └── troubleshooting.md
+├── estrutura-projeto.txt
+├── k8s
+│   ├── 00-namespace.yaml
+│   ├── 01-postgres-configmap.yaml
+│   ├── 02-postgres-secret.yaml
+│   ├── 03-postgres-pv-manual.yaml
+│   ├── 03-postgres-pvc.yaml
+│   ├── 04-postgres-statefulset.yaml
+│   ├── 05-postgres-service.yaml
+│   ├── 06-app-configmap.yaml
+│   ├── 07-app-deployment-with-metrics.yaml
+│   ├── 07-app-deployment.yaml
+│   ├── 08-app-service.yaml
+│   ├── 09-ingress.yaml
+│   ├── 10-app-hpa.yaml
+│   ├── 11-network-policy.yaml
+│   ├── 12-pod-disruption-budget.yaml
+│   ├── 13-servicemonitor.yaml
+│   ├── 14-resource-quota.yaml
+│   ├── 15-backup-job.yaml
+│   ├── MANIFEST_SUMMARY.md
+│   ├── README.md
+│   ├── architecture.md
+│   ├── kustomization.yaml
+│   └── overlays
+│       ├── dev
+│       ├── production
+│       └── staging
+├── monitoring
+│   ├── 00-namespace.yaml
+│   ├── dashboards
+│   │   ├── README.md
+│   │   └── kubernetes-overview.json
+│   ├── exporters
+│   │   ├── kube-state-metrics.yaml
+│   │   └── postgres-exporter.yaml
+│   ├── grafana
+│   │   ├── 01-configmap.yaml
+│   │   ├── 02-pvc.yaml
+│   │   ├── 03-deployment.yaml
+│   │   ├── 04-service.yaml
+│   │   ├── 05-ingress.yaml
+│   │   └── 06-dashboards-configmap.yaml
+│   └── prometheus
+│       ├── 01-configmap.yaml
+│       ├── 02-rbac.yaml
+│       ├── 03-pvc.yaml
+│       ├── 04-deployment.yaml
+│       └── 05-service.yaml
+└── scripts
+    ├── deploy.sh
+    ├── diagnose-ingress.sh
+    ├── diagnose.sh
+    ├── enable-hostnetwork.sh
+    ├── fix-ingress-rollout.sh
+    ├── fix-pvc.sh
+    ├── install-metallb.sh
+    ├── install-monitoring.sh
+    ├── reset-to-metallb.sh
+    └── test-api.sh
+
+19 directories, 69 files
