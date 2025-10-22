@@ -125,8 +125,12 @@ for DASHBOARD_ID in "${!DASHBOARDS[@]}"; do
     # Preparar payload
     echo -n "2/3 Preparando payload... "
     
-    # Substituir datasource UID
-    DASHBOARD_JSON=$(echo "$DASHBOARD_JSON" | jq --arg uid "$PROMETHEUS_UID" '
+    # Salvar JSON em arquivo temporário para evitar "Argument list too long"
+    TMP_FILE="/tmp/dashboard_${DASHBOARD_ID}.json"
+    echo "$DASHBOARD_JSON" > "$TMP_FILE"
+    
+    # Substituir datasource UID usando arquivo
+    jq --arg uid "$PROMETHEUS_UID" '
       walk(
         if type == "object" and has("datasource") then
           if .datasource | type == "string" then
@@ -140,17 +144,20 @@ for DASHBOARD_ID in "${!DASHBOARDS[@]}"; do
           .
         end
       )
-    ')
+    ' "$TMP_FILE" > "${TMP_FILE}.processed"
     
     # Criar payload de importação
     PAYLOAD=$(jq -n \
-      --argjson dashboard "$DASHBOARD_JSON" \
+      --slurpfile dashboard "${TMP_FILE}.processed" \
       --arg uid "$PROMETHEUS_UID" \
       '{
-        dashboard: $dashboard,
+        dashboard: $dashboard[0],
         overwrite: true,
         inputs: []
       }')
+    
+    # Limpar arquivos temporários
+    rm -f "$TMP_FILE" "${TMP_FILE}.processed"
     
     echo -e "${GREEN}✅ OK${NC}"
     
