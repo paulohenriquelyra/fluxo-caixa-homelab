@@ -163,11 +163,22 @@ for DASHBOARD_ID in "${!DASHBOARDS[@]}"; do
     
     # Importar via API
     echo -n "3/3 Importando... "
-    IMPORT_RESPONSE=$(curl -s -X POST \
+    IMPORT_RESPONSE=$(curl -s --max-time 60 -X POST \
       -H "Content-Type: application/json" \
       -u "$GRAFANA_USER:$GRAFANA_PASS" \
       -d "$PAYLOAD" \
       "$GRAFANA_URL/api/dashboards/import" 2>&1)
+    
+    CURL_EXIT_CODE=$?
+    
+    # Verificar se curl teve timeout ou erro
+    if [ $CURL_EXIT_CODE -ne 0 ]; then
+        echo -e "${RED}❌ FALHOU${NC}"
+        echo "  Erro: Timeout ou falha na conexão (exit code: $CURL_EXIT_CODE)"
+        echo "  Tente importar manualmente: ID $DASHBOARD_ID"
+        FAIL_COUNT=$((FAIL_COUNT + 1))
+        continue
+    fi
     
     # Verificar se importou com sucesso
     if echo "$IMPORT_RESPONSE" | jq -e '.uid' > /dev/null 2>&1; then
