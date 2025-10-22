@@ -118,9 +118,9 @@ echo ""
 # Sugerir range de IPs
 echo -e "${YELLOW}📝 Sugestão de Pool de IPs:${NC}"
 echo ""
-echo "Opção 1 (Conservadora): 10.0.3.240 - 10.0.3.250 (11 IPs)"
-echo "Opção 2 (Moderada):     10.0.3.230 - 10.0.3.250 (21 IPs)"
-echo "Opção 3 (Ampla):        10.0.3.200 - 10.0.3.250 (51 IPs)"
+echo "Opção 1 (Conservadora): 10.0.3.240 - 10.0.2.17 (11 IPs)"
+echo "Opção 2 (Moderada):     10.0.3.230 - 10.0.2.17 (21 IPs)"
+echo "Opção 3 (Ampla):        10.0.3.200 - 10.0.2.17 (51 IPs)"
 echo ""
 
 # Verificar IPs livres (sample)
@@ -145,8 +145,8 @@ echo -e "${BLUE}Configurar Pool de IPs:${NC}"
 read -p "IP inicial [10.0.3.240]: " IP_START
 IP_START=${IP_START:-10.0.3.240}
 
-read -p "IP final [10.0.3.250]: " IP_END
-IP_END=${IP_END:-10.0.3.250}
+read -p "IP final [10.0.2.17]: " IP_END
+IP_END=${IP_END:-10.0.2.17}
 
 echo ""
 echo "Range configurado: $IP_START - $IP_END"

@@ -24,7 +24,7 @@ Configuração de uma VM dedicada para servir storage NFS para o cluster Kuberne
 - **RAM**: 2GB
 - **Disco**: 100GB (SSD se possível)
 - **OS**: Ubuntu Server 22.04 LTS
-- **IP**: 10.0.3.250 (ou outro disponível na rede)
+- **IP**: 10.0.2.17 (ou outro disponível na rede)
 - **Hostname**: nfs-storage
 
 ---
@@ -73,7 +73,7 @@ Configuração de uma VM dedicada para servir storage NFS para o cluster Kuberne
 1. **Idioma**: English
 2. **Keyboard**: Brazilian (ou seu layout)
 3. **Network**: 
-   - Configurar IP estático: **10.0.3.250/23**
+   - Configurar IP estático: **10.0.2.17/23**
    - Gateway: 10.0.2.1 (ou seu gateway)
    - DNS: 8.8.8.8, 8.8.4.4
 4. **Storage**: Use entire disk
@@ -96,7 +96,7 @@ Configuração de uma VM dedicada para servir storage NFS para o cluster Kuberne
 Faça SSH na VM e execute:
 
 ```bash
-ssh admin@10.0.3.250
+ssh admin@10.0.2.17
 ```
 
 Depois execute este script:
@@ -190,7 +190,7 @@ echo "🎯 Próximos Passos"
 echo "========================================="
 echo ""
 echo "1. Testar montagem NFS de outro node:"
-echo "   sudo mount -t nfs 10.0.3.250:/srv/nfs/k8s /mnt"
+echo "   sudo mount -t nfs 10.0.2.17:/srv/nfs/k8s /mnt"
 echo ""
 echo "2. Instalar NFS Provisioner no Kubernetes"
 echo "   (Ver: docs/setup-nfs-storage.md - Passo 3)"
@@ -227,7 +227,7 @@ sudo apt-get install -y nfs-common
 sudo mkdir -p /mnt/nfs-test
 
 # Montar NFS
-sudo mount -t nfs 10.0.3.250:/srv/nfs/k8s /mnt/nfs-test
+sudo mount -t nfs 10.0.2.17:/srv/nfs/k8s /mnt/nfs-test
 
 # Testar escrita
 echo "teste" | sudo tee /mnt/nfs-test/teste.txt
@@ -264,7 +264,7 @@ helm repo update
 helm install nfs-subdir-external-provisioner \
   nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
   --namespace kube-system \
-  --set nfs.server=10.0.3.250 \
+  --set nfs.server=10.0.2.17 \
   --set nfs.path=/srv/nfs/k8s \
   --set storageClass.name=nfs-client \
   --set storageClass.defaultClass=false \
@@ -378,13 +378,13 @@ spec:
             - name: PROVISIONER_NAME
               value: nfs-storage/nfs-client
             - name: NFS_SERVER
-              value: 10.0.3.250
+              value: 10.0.2.17
             - name: NFS_PATH
               value: /srv/nfs/k8s
       volumes:
         - name: nfs-client-root
           nfs:
-            server: 10.0.3.250
+            server: 10.0.2.17
             path: /srv/nfs/k8s
 EOF
 
@@ -462,7 +462,7 @@ EOF
 kubectl wait --for=condition=ready pod/test-nfs-pod --timeout=60s
 
 # Verificar arquivo no servidor NFS
-ssh admin@10.0.3.250 "find /srv/nfs/k8s -name 'test.txt' -exec cat {} \;"
+ssh admin@10.0.2.17 "find /srv/nfs/k8s -name 'test.txt' -exec cat {} \;"
 
 # Deve mostrar: Hello from NFS!
 
@@ -551,7 +551,7 @@ kubectl get pods -n monitoring
 
 ```bash
 # No servidor NFS
-ssh admin@10.0.3.250
+ssh admin@10.0.2.17
 
 # Espaço total
 df -h /srv/nfs/k8s
@@ -656,13 +656,13 @@ crontab -e
 
 ```bash
 # Verificar se NFS está rodando
-ssh admin@10.0.3.250 "sudo systemctl status nfs-kernel-server"
+ssh admin@10.0.2.17 "sudo systemctl status nfs-kernel-server"
 
 # Verificar exports
-ssh admin@10.0.3.250 "sudo exportfs -v"
+ssh admin@10.0.2.17 "sudo exportfs -v"
 
 # Testar montagem manual de um node
-ssh usuario@10.0.3.52 "sudo mount -t nfs 10.0.3.250:/srv/nfs/k8s /mnt"
+ssh usuario@10.0.3.52 "sudo mount -t nfs 10.0.2.17:/srv/nfs/k8s /mnt"
 ```
 
 ### PVC fica Pending
@@ -679,10 +679,10 @@ kubectl logs -n kube-system -l app=nfs-client-provisioner
 
 ```bash
 # Verificar latência de rede
-ping -c 10 10.0.3.250
+ping -c 10 10.0.2.17
 
 # Verificar I/O do disco no servidor NFS
-ssh admin@10.0.3.250 "iostat -x 1 10"
+ssh admin@10.0.2.17 "iostat -x 1 10"
 
 # Considerar:
 # - Usar SSD ao invés de HDD
@@ -704,7 +704,7 @@ ssh admin@10.0.3.250 "iostat -x 1 10"
 
 - [ ] VM criada no Proxmox (100GB, 2vCPU, 2GB RAM)
 - [ ] Ubuntu Server 22.04 instalado
-- [ ] IP estático configurado (10.0.3.250)
+- [ ] IP estático configurado (10.0.2.17)
 - [ ] NFS Server instalado e configurado
 - [ ] Exports configurados (/srv/nfs/k8s)
 - [ ] Firewall configurado

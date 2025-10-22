@@ -18,7 +18,7 @@ Configurar VM NFS dedicada para storage do cluster Kubernetes.
    - OS: Ubuntu Server 22.04
 
 2. **Configurar rede:**
-   - IP estático: `10.0.3.250/23`
+   - IP estático: `10.0.2.17/23`
    - Gateway: `10.0.2.1`
    - DNS: `8.8.8.8`
 
@@ -33,7 +33,7 @@ Configurar VM NFS dedicada para storage do cluster Kubernetes.
 
 ```bash
 # SSH na VM
-ssh admin@10.0.3.250
+ssh admin@10.0.2.17
 
 # Download do script
 wget https://raw.githubusercontent.com/paulohenriquelyra/fluxo-caixa-homelab/main/scripts/nfs-server-setup.sh
@@ -48,10 +48,10 @@ chmod +x nfs-server-setup.sh
 ```bash
 # No seu desktop
 cd ~/projeto-migra/fluxo-caixa-homelab
-scp scripts/nfs-server-setup.sh admin@10.0.3.250:~/
+scp scripts/nfs-server-setup.sh admin@10.0.2.17:~/
 
 # Na VM
-ssh admin@10.0.3.250
+ssh admin@10.0.2.17
 chmod +x nfs-server-setup.sh
 ./nfs-server-setup.sh
 ```
@@ -69,7 +69,7 @@ sudo apt-get install -y nfs-common
 
 # Testar montagem
 sudo mkdir -p /mnt/nfs-test
-sudo mount -t nfs 10.0.3.250:/srv/nfs/k8s /mnt/nfs-test
+sudo mount -t nfs 10.0.2.17:/srv/nfs/k8s /mnt/nfs-test
 echo "teste" | sudo tee /mnt/nfs-test/teste.txt
 cat /mnt/nfs-test/teste.txt
 sudo umount /mnt/nfs-test
@@ -151,7 +151,7 @@ kubectl get pods -n monitoring -w
 
 ```bash
 # 1. NFS Server rodando
-ssh admin@10.0.3.250 "sudo systemctl status nfs-kernel-server"
+ssh admin@10.0.2.17 "sudo systemctl status nfs-kernel-server"
 
 # 2. NFS Provisioner rodando
 kubectl get pods -n kube-system | grep nfs
@@ -183,20 +183,20 @@ kubectl describe pvc <pvc-name> -n monitoring
 kubectl logs -n kube-system -l app=nfs-client-provisioner
 
 # Testar montagem manual
-ssh usuario@10.0.3.52 "sudo mount -t nfs 10.0.3.250:/srv/nfs/k8s /mnt"
+ssh usuario@10.0.3.52 "sudo mount -t nfs 10.0.2.17:/srv/nfs/k8s /mnt"
 ```
 
 ### NFS não monta
 
 ```bash
 # Verificar NFS Server
-ssh admin@10.0.3.250 "sudo systemctl status nfs-kernel-server"
+ssh admin@10.0.2.17 "sudo systemctl status nfs-kernel-server"
 
 # Verificar exports
-ssh admin@10.0.3.250 "sudo exportfs -v"
+ssh admin@10.0.2.17 "sudo exportfs -v"
 
 # Verificar firewall
-ssh admin@10.0.3.250 "sudo ufw status"
+ssh admin@10.0.2.17 "sudo ufw status"
 ```
 
 ---

@@ -110,7 +110,7 @@ metadata:
   namespace: metallb-system
 spec:
   addresses:
-  - 10.0.3.240-10.0.3.250  # Ajustar IPs livres
+  - 10.0.3.240-10.0.2.17  # Ajustar IPs livres
 ---
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
@@ -155,7 +155,7 @@ curl http://fluxo-caixa.local/health
 ### Opção 1: Conservadora (11 IPs)
 ```yaml
 addresses:
-- 10.0.3.240-10.0.3.250
+- 10.0.3.240-10.0.2.17
 ```
 
 **Uso:** 1-10 LoadBalancers
@@ -163,7 +163,7 @@ addresses:
 ### Opção 2: Moderada (21 IPs)
 ```yaml
 addresses:
-- 10.0.3.230-10.0.3.250
+- 10.0.3.230-10.0.2.17
 ```
 
 **Uso:** 10-20 LoadBalancers
@@ -171,7 +171,7 @@ addresses:
 ### Opção 3: Ampla (51 IPs)
 ```yaml
 addresses:
-- 10.0.3.200-10.0.3.250
+- 10.0.3.200-10.0.2.17
 ```
 
 **Uso:** 20-50 LoadBalancers

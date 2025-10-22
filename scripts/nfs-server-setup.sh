@@ -3,7 +3,7 @@
 # ============================================
 # Script de Configuração do NFS Storage Server
 # ============================================
-# Executar na VM NFS (10.0.3.250)
+# Executar na VM NFS (10.0.2.17)
 
 set -e
 

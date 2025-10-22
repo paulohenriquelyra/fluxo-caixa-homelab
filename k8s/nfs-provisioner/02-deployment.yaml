@@ -28,7 +28,7 @@ spec:
             - name: PROVISIONER_NAME
               value: nfs-storage/nfs-client
             - name: NFS_SERVER
-              value: 10.0.3.250  # AJUSTAR SE NECESSÁRIO
+              value: 10.0.2.17
             - name: NFS_PATH
               value: /srv/nfs/k8s
           resources:
@@ -41,6 +41,6 @@ spec:
       volumes:
         - name: nfs-client-root
           nfs:
-            server: 10.0.3.250  # AJUSTAR SE NECESSÁRIO
+            server: 10.0.2.17
             path: /srv/nfs/k8s
 
