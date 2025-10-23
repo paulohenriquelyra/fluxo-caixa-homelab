@@ -64,12 +64,11 @@ output "private_subnet_ids" {
 }
 
 
-_# ========================================
+# ========================================
 # SAÍDAS DO MÓDULO DMS
 # ========================================
 
-output "dms_replication_task_arn" {
-  description = "O ARN da tarefa de replicação DMS. Use este ARN para iniciar, parar ou monitorar a tarefa via AWS CLI."
-  value       = module.dms.replication_task_arn
-}
-
+# output "dms_replication_task_arn" {
+#   description = "O ARN da tarefa de replicação DMS. Use este ARN para iniciar, parar ou monitorar a tarefa via AWS CLI."
+#   value       = module.dms.replication_task_arn
+# }

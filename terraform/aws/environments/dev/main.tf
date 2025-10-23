@@ -102,53 +102,110 @@ module "aurora" {
   # `module.network.vpc_id` refere-se ao output 'vpc_id' do módulo 'network'.
   vpc_id             = module.network.vpc_id
   private_subnet_ids = module.network.private_subnet_ids
+  vpc_cidr_block_for_sg = var.vpc_cidr # Passa o CIDR da VPC para o SG do Aurora
 
   # Parâmetros específicos do banco de dados para este ambiente (dev).
   db_instance_class   = var.db_instance_class
+  db_port             = var.db_port
+  db_engine_version   = var.db_engine_version
+  db_name             = var.db_name
+  db_username         = var.db_username
   skip_final_snapshot = var.skip_final_snapshot
   deletion_protection = var.deletion_protection
+  rds_monitoring_role_arn = module.network.rds_monitoring_role_arn
+  secrets_recovery_window = var.secrets_recovery_window
+  backup_retention_days = var.backup_retention_days
 }
 
 
-
 # ==============================================================================
-# MÓDULO: AWS DATABASE MIGRATION SERVICE (DMS)
+# RECURSO: ORÇAMENTO DE CUSTOS (AWS Budgets)
 # ==============================================================================
 #
-# Invoca o módulo DMS para provisionar os recursos necessários para a migração.
-# Este módulo depende da rede e do cluster Aurora, então ele usa os outputs
-# dos módulos `network` e `aurora` como seus inputs.
+# Cria um alerta de orçamento para monitorar os custos do projeto e enviar
+# notificações por e-mail para evitar gastos inesperados.
 
-module "dms" {
-  source = "../../modules/dms"
+resource "aws_budgets_budget" "cost_alert" {
+  name         = "${var.project_name}-cost-budget"
+  budget_type  = "COST"
+  limit_amount = "10.0" # Orçamento de $10 dólares
+  limit_unit   = "USD"
+  time_unit    = "MONTHLY"
 
-  # Parâmetros de identificação e tagueamento.
-  project_name = var.project_name
-  environment  = var.environment
-  common_tags  = var.common_tags
+  # Filtra os custos para incluir apenas os recursos com a tag do nosso projeto.
+  # Isso torna o orçamento mais preciso para este projeto específico.
+  cost_filter {
+    name   = "TagKeyValue"
+    values = ["Project$${var.project_name}"]
+  }
 
-  # Conecta o DMS à nossa rede.
-  private_subnet_ids = module.network.private_subnet_ids
+  # Notificação quando o custo atual atingir 50% do orçamento.
+  notification {
+    comparison_operator        = "GREATER_THAN"
+    threshold                  = 50
+    threshold_type             = "PERCENTAGE"
+    notification_type          = "ACTUAL"
+    subscriber_email_addresses = ["paulo.lyra@gmail.com"]
+  }
 
-  # Configurações da instância de replicação.
-  dms_instance_class = var.dms_instance_class
+  # Notificação quando o custo atual atingir 80% do orçamento.
+  notification {
+    comparison_operator        = "GREATER_THAN"
+    threshold                  = 80
+    threshold_type             = "PERCENTAGE"
+    notification_type          = "ACTUAL"
+    subscriber_email_addresses = ["paulo.lyra@gmail.com"]
+  }
 
-  # Configurações do Endpoint de Origem (Homelab PostgreSQL).
-  # ATENÇÃO: `var.source_db_server_name` deve ser o IP público do seu Homelab.
-  source_db_server_name = var.source_db_server_name
-  source_db_port        = var.source_db_port
-  source_db_name        = var.source_db_name
-  source_db_username    = var.source_db_username
-  source_db_password    = var.source_db_password
-
-  # Configurações do Endpoint de Destino (AWS Aurora).
-  # Note como usamos os outputs do módulo `aurora` aqui.
-  target_db_server_name = module.aurora.cluster_endpoint
-  target_db_port        = module.aurora.cluster_port
-  target_db_name        = var.target_db_name # O nome do banco de dados é o mesmo.
-  target_db_username    = var.target_db_username
-  # A senha do Aurora é obtida do Secrets Manager, mas para o DMS, precisamos passá-la diretamente.
-  # Em um cenário de produção, você poderia usar uma data source para ler o segredo.
-  target_db_password    = var.target_db_password
+  # Notificação quando o custo atual atingir 100% do orçamento.
+  notification {
+    comparison_operator        = "GREATER_THAN"
+    threshold                  = 100
+    threshold_type             = "PERCENTAGE"
+    notification_type          = "ACTUAL"
+    subscriber_email_addresses = ["paulo.lyra@gmail.com"]
+  }
 }
 
+
+
+# # ==============================================================================
+# # MÓDULO: AWS DATABASE MIGRATION SERVICE (DMS)
+# # ==============================================================================
+# #
+# # Invoca o módulo DMS para provisionar os recursos necessários para a migração.
+# # Este módulo depende da rede e do cluster Aurora, então ele usa os outputs
+# # dos módulos `network` e `aurora` como seus inputs.
+#
+# module "dms" {
+#   source = "../../modules/dms"
+#
+#   # Parâmetros de identificação e tagueamento.
+#   project_name = var.project_name
+#   environment  = var.environment
+#   common_tags  = var.common_tags
+#
+#   # Conecta o DMS à nossa rede.
+#   private_subnet_ids = module.network.private_subnet_ids
+#
+#   # Configurações da instância de replicação.
+#   dms_instance_class = var.dms_instance_class
+#
+#   # Configurações do Endpoint de Origem (Homelab PostgreSQL).
+#   # ATENÇÃO: `var.source_db_server_name` deve ser o IP público do seu Homelab.
+#   source_db_server_name = var.source_db_server_name
+#   source_db_port        = var.source_db_port
+#   source_db_name        = var.source_db_name
+#   source_db_username    = var.source_db_username
+#   source_db_password    = var.source_db_password
+#
+#   # Configurações do Endpoint de Destino (AWS Aurora).
+#   # Note como usamos os outputs do módulo `aurora` aqui.
+#   target_db_server_name = module.aurora.cluster_endpoint
+#   target_db_port        = module.aurora.cluster_port
+#   target_db_name        = var.target_db_name # O nome do banco de dados é o mesmo.
+#   target_db_username    = var.target_db_username
+#   # A senha do Aurora é obtida do Secrets Manager, mas para o DMS, precisamos passá-la diretamente.
+#   # Em um cenário de produção, você poderia usar uma data source para ler o segredo.
+#   target_db_password    = var.target_db_password
+# }

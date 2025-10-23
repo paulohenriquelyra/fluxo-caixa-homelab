@@ -1,13 +1,11 @@
 variable "project_name" {
-  description = "Nome do projeto, usado para nomear recursos e tags."
+  description = "Nome do projeto, usado como prefixo em todos os recursos."
   type        = string
-  default     = "fluxo-caixa"
 }
 
 variable "environment" {
   description = "Ambiente de implantação (ex: dev, stg, prod)."
   type        = string
-  default     = "dev"
 }
 
 variable "common_tags" {
@@ -17,78 +15,72 @@ variable "common_tags" {
 }
 
 variable "vpc_id" {
-  description = "ID da VPC onde o cluster Aurora será implantado."
+  description = "ID da VPC onde o cluster Aurora será criado."
   type        = string
 }
 
 variable "private_subnet_ids" {
-  description = "Lista de IDs de sub-redes privadas para o DB Subnet Group."
+  description = "Lista de IDs das sub-redes privadas para o cluster Aurora."
   type        = list(string)
 }
 
-variable "db_name" {
-  description = "Nome do banco de dados inicial a ser criado no cluster."
+variable "vpc_cidr_block_for_sg" {
+  description = "Bloco CIDR da VPC para ser usado nas regras de Security Group."
   type        = string
-  default     = "fluxocaixa"
 }
 
 variable "db_port" {
-  description = "Porta na qual o banco de dados aceitará conexões."
+  description = "Porta para o cluster Aurora PostgreSQL."
   type        = number
   default     = 5432
 }
 
-variable "db_username" {
-  description = "Nome de usuário para o usuário mestre do banco de dados."
+variable "db_engine_version" {
+  description = "Versão do motor do Aurora PostgreSQL."
   type        = string
-  default     = "masteruser"
+  default     = "15.4" # Baseado no documento de migração
 }
 
-variable "db_engine_version" {
-  description = "Versão do motor PostgreSQL do Aurora."
+variable "db_name" {
+  description = "Nome do banco de dados inicial a ser criado no cluster Aurora."
   type        = string
-  default     = "15.4"
+  default     = "fluxocaixa" # Baseado no documento de migração
+}
+
+variable "db_username" {
+  description = "Nome de usuário mestre para o cluster Aurora."
+  type        = string
+  default     = "postgres" # Baseado no documento de migração
 }
 
 variable "db_instance_class" {
-  description = "Classe da instância para as instâncias do cluster Aurora (ex: db.t4g.small, db.r6g.large)."
+  description = "Classe da instância para as instâncias do cluster Aurora."
   type        = string
-  default     = "db.t4g.small"
-}
-
-variable "backup_retention_days" {
-  description = "Número de dias para reter backups automáticos."
-  type        = number
-  default     = 3
 }
 
 variable "skip_final_snapshot" {
-  description = "Se verdadeiro, um snapshot final não será criado ao excluir o cluster. Ideal para ambientes de não produção."
+  description = "Se verdadeiro, um snapshot final não será criado ao excluir o cluster."
   type        = bool
-  default     = true
 }
 
 variable "deletion_protection" {
-  description = "Se verdadeiro, o cluster não pode ser excluído. Defina como 'false' para ambientes de não produção."
+  description = "Se verdadeiro, o cluster não pode ser excluído."
   type        = bool
-  default     = false
-}
-
-variable "secrets_recovery_window" {
-  description = "Janela de recuperação em dias para o segredo no Secrets Manager. Use 0 para exclusão imediata em dev/test."
-  type        = number
-  default     = 0
-}
-
-variable "kms_key_id_for_secrets" {
-  description = "O ID da chave KMS para criptografar o segredo da senha mestre. Se nulo, usa a chave padrão da AWS."
-  type        = string
-  default     = null
 }
 
 variable "rds_monitoring_role_arn" {
-  description = "ARN da IAM Role para o Enhanced Monitoring do RDS. Se nulo, o monitoramento avançado é desativado."
+  description = "ARN da IAM Role para o RDS Enhanced Monitoring."
   type        = string
-  default     = null
 }
 
+variable "secrets_recovery_window" {
+  description = "Número de dias para a janela de recuperação do segredo no Secrets Manager."
+  type        = number
+  default     = 0 # Para ambientes de dev, 0 dias para exclusão imediata.
+}
+
+variable "backup_retention_days" {
+  description = "Número de dias para reter backups automáticos do cluster Aurora."
+  type        = number
+  default     = 1 # Para ambientes de dev, 1 dia para economizar custos.
+}

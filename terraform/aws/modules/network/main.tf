@@ -1,4 +1,3 @@
-'''
 # ==============================================================================
 # MÓDULO TERRAFORM: REDE AWS (VPC, Subnets, Roteamento)
 # ==============================================================================
@@ -69,7 +68,7 @@ resource "aws_subnet" "public" {
   vpc_id            = aws_vpc.main.id
   # `cidrsubnet` calcula os blocos CIDR para as sub-redes a partir do CIDR da VPC.
   # Aqui, criamos sub-redes /24 (256 IPs) para as sub-redes públicas.
-  cidr_block        = cidrsubnet(aws_vpc.main.cidr_block, 8, count.index)
+  cidr_block        = cidrsubnet(aws_vpc.main.cidr_block, 2, count.index)
   availability_zone = data.aws_availability_zones.available.names[count.index]
 
   # Atribui um IP público automaticamente a instâncias lançadas aqui.
@@ -95,7 +94,7 @@ resource "aws_subnet" "private" {
   vpc_id            = aws_vpc.main.id
   # O offset `2` no `cidrsubnet` garante que os CIDRs das sub-redes privadas não
   # se sobreponham aos das públicas (que usaram index 0 e 1).
-  cidr_block        = cidrsubnet(aws_vpc.main.cidr_block, 8, count.index + 2)
+  cidr_block        = cidrsubnet(aws_vpc.main.cidr_block, 2, count.index + 2)
   availability_zone = data.aws_availability_zones.available.names[count.index]
 
   tags = merge(
@@ -199,4 +198,28 @@ resource "aws_route_table_association" "private" {
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private.id
 }
-'''
+
+# ==============================================================================
+# RECURSO: IAM ROLE PARA ENHANCED MONITORING DO RDS
+# ==============================================================================
+#
+# O RDS Enhanced Monitoring requer uma IAM Role com permissões específicas para
+# enviar logs e métricas do sistema operacional para o CloudWatch.
+
+resource "aws_iam_role" "rds_monitoring_role" {
+  name = "${var.project_name}-rds-monitoring-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Action = "sts:AssumeRole",
+      Effect = "Allow",
+      Principal = { Service = "monitoring.rds.amazonaws.com" }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "rds_monitoring_policy_attachment" {
+  role       = aws_iam_role.rds_monitoring_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
+}

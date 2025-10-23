@@ -13,3 +13,7 @@ output "private_subnet_ids" {
   value       = aws_subnet.private[*].id
 }
 
+output "rds_monitoring_role_arn" {
+  description = "ARN da IAM Role para o RDS Enhanced Monitoring."
+  value       = aws_iam_role.rds_monitoring_role.arn
+}

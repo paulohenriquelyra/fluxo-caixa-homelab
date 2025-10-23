@@ -79,13 +79,11 @@ resource "aws_security_group" "aurora_sg" {
   # Regra de Entrada (Ingress)
   # Permite conexões de entrada na porta do banco de dados.
   ingress {
-    description      = "Permite tráfego PostgreSQL de qualquer lugar (NÃO SEGURO PARA PRODUÇÃO)"
+    description      = "Allow PostgreSQL traffic from VPC" # Alterado para remover caracteres especiais
     from_port        = var.db_port
     to_port          = var.db_port
     protocol         = "tcp"
-    # ATENÇÃO: `0.0.0.0/0` significa "qualquer IP". Em produção, substitua por uma lista de
-    # IPs específicos ou IDs de outros security groups. Ex: ["10.0.1.0/24", "sg-12345678"].
-    cidr_blocks      = ["0.0.0.0/0"]
+    cidr_blocks      = [var.vpc_cidr_block_for_sg]
   }
 
   # Regra de Saída (Egress)
@@ -93,7 +91,7 @@ resource "aws_security_group" "aurora_sg" {
   # Esta configuração é geralmente aceitável, mas pode ser restringida se houver
   # requisitos de segurança mais rigorosos.
   egress {
-    description      = "Permite todo o tráfego de saída"
+    description      = "Allow all outbound traffic" # Alterado para remover caracteres especiais
     from_port        = 0
     to_port          = 0
     protocol         = "-1" # "-1" significa "todos os protocolos".
@@ -209,7 +207,7 @@ resource "aws_rds_cluster" "aurora_cluster" {
   # o ARN do segredo no Secrets Manager. Isso é mais seguro.
   master_username      = var.db_username
   manage_master_user_password = true
-  master_user_secret_kms_key_id = var.kms_key_id_for_secrets
+  # master_user_secret_kms_key_id = var.kms_key_id_for_secrets # Removido para usar a chave padrão da AWS
 
   # Configurações de Rede
   db_subnet_group_name = aws_db_subnet_group.aurora_subnet_group.name
@@ -311,4 +309,3 @@ resource "aws_rds_cluster_instance" "aurora_instance" {
     }
   )
 }
-
