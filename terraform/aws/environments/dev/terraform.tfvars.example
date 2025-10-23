@@ -1,0 +1,64 @@
+# ==============================================================================
+# ARQUIVO DE EXEMPLO DE VARIÁVEIS DO TERRAFORM (.tfvars.example)
+# ==============================================================================
+#
+# Este é um arquivo de exemplo. Copie-o para terraform.tfvars e preencha
+# com seus valores reais:
+#
+#   cp terraform.tfvars.example terraform.tfvars
+#
+# O arquivo terraform.tfvars está no .gitignore e NÃO será commitado.
+
+# Nome do projeto
+project_name = "fluxo-caixa"
+
+# Ambiente
+environment = "dev"
+
+# Região AWS
+aws_region = "us-east-1"
+
+# CIDR da VPC
+vpc_cidr = "10.0.0.0/16"
+
+# Classe da instância Aurora
+db_instance_class = "db.t4g.small"
+
+# Pular snapshot final (true para dev/test)
+skip_final_snapshot = true
+
+# Proteção contra exclusão (false para dev/test)
+deletion_protection = false
+
+# ==============================================================================
+# VARIÁVEIS DO DMS - PREENCHER COM SEUS VALORES
+# ==============================================================================
+
+# Classe da instância DMS
+dms_instance_class = "dms.t3.medium"
+
+# --- Origem (Homelab) ---
+# SUBSTITUA pelo IP público do seu homelab
+source_db_server_name = "SEU_IP_PUBLICO_AQUI"
+
+# Porta do PostgreSQL (padrão: 5432)
+source_db_port = 5432
+
+# Nome do banco de dados
+source_db_name = "fluxocaixa"
+
+# Usuário do banco de dados
+source_db_username = "postgres"
+
+# SUBSTITUA pela senha do seu banco de dados no homelab
+source_db_password = "SENHA_DO_SEU_HOMELAB_DB_AQUI"
+
+# --- Destino (Aurora) ---
+# Nome do banco de dados (mesmo da origem)
+target_db_name = "fluxocaixa"
+
+# Usuário master do Aurora
+target_db_username = "masteruser"
+
+# SUBSTITUA pela senha gerada pelo Aurora (obter do Secrets Manager após primeiro deploy)
+target_db_password = "SENHA_GERADA_PELO_AURORA_AQUI"
