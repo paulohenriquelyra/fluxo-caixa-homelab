@@ -18,8 +18,8 @@ spec:
       containers:
       - name: app
         # IMPORTANTE: Substituir pela sua imagem após build
-        # Exemplo: seu-registry/fluxo-caixa-app:v1.0
-        image: seu-registry/fluxo-caixa-app:v1.0
+        # Exemplo: phfldocker/fluxo-caixa-app:v1.0
+        image: phfldocker/fluxo-caixa-app:v1.0
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
